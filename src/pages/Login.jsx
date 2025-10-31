@@ -11,6 +11,12 @@ export default function Login() {
     e.preventDefault();
 
     try {
+      // Clean up any old localStorage data (migration from localStorage to sessionStorage)
+      localStorage.removeItem("userId");
+      localStorage.removeItem("username");
+      localStorage.removeItem("avatar");
+      localStorage.removeItem("csrfToken");
+
       const token = await loginUser(f.username, f.password);
       if (!token) throw new Error("No token returned");
 
