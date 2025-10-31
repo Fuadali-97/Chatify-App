@@ -10,8 +10,6 @@ export default function Register() {
     e.preventDefault()
     
     try {
-      // Generera en konsekvent avatar baserat på username
-      // Använd en hash av username för att få samma avatar varje gång
       let hash = 0;
       for (let i = 0; i < f.username.length; i++) {
         hash = f.username.charCodeAt(i) + ((hash << 5) - hash);

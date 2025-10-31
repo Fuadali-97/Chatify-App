@@ -8,11 +8,10 @@ export default function Chat() {
   const userId = localStorage.getItem("userId");
   const username = localStorage.getItem("username") || "Guest";
   const [avatar] = useState(() => {
-    // Hämta från localStorage eller generera en konsekvent baserat på username
+ 
     let stored = localStorage.getItem("avatar");
     if (stored) return stored;
     
-    // Generera en konsekvent avatar baserat på username om ingen finns
     let hash = 0;
     for (let i = 0; i < username.length; i++) {
       hash = username.charCodeAt(i) + ((hash << 5) - hash);
@@ -55,17 +54,14 @@ export default function Chat() {
     e.preventDefault();
     if (!text.trim()) return;
 
-    // DOMPurify tar automatiskt bort script-taggar och deras innehåll helt
-    // Detta säkerställer att farliga script-taggar inte kan köras
     const clean = DOMPurify.sanitize(text, {
-      KEEP_CONTENT: false, // Ta bort innehållet i script-taggar helt
+      KEEP_CONTENT: false, 
       FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
       FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'],
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-      ALLOWED_ATTR: ['href', 'target'], // Endast säkra attribut
+      ALLOWED_ATTR: ['href', 'target'], 
     });
 
-    // Om meddelandet blir tomt efter sanitering, visa felmeddelande i chatten
     if (!clean.trim()) {
       const errorMsg = {
         id: `error-${Date.now()}`,
@@ -119,8 +115,6 @@ export default function Chat() {
           const mine = String(m.userId) === String(userId);
           const isSystem = m.userId === "system";
           const isError = m.isError;
-          
-          // Systemmeddelande (felmeddelanden)
           if (isSystem) {
             return (
               <div key={m.id} className="msg msg-system">
@@ -130,8 +124,6 @@ export default function Chat() {
               </div>
             );
           }
-          
-          // Vanliga meddelanden
           return (
             <div key={m.id} className={`msg ${mine ? "mine" : "other"}`}>
               <img
@@ -143,12 +135,12 @@ export default function Chat() {
                 className="bubble"
                 dangerouslySetInnerHTML={{ 
                   __html: DOMPurify.sanitize(m.text, {
-                    KEEP_CONTENT: false, // Ta bort innehållet i script-taggar helt
-                    // DOMPurify tar automatiskt bort script-taggar och deras innehåll
+                    KEEP_CONTENT: false,
+                    
                     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
                     FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'],
                     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-                    ALLOWED_ATTR: ['href', 'target'], // Endast säkra attribut
+                    ALLOWED_ATTR: ['href', 'target'], 
                   })
                 }}
               />
@@ -161,7 +153,6 @@ export default function Chat() {
           );
         })}
       </div>
-
       <form className="chat-input" onSubmit={send}>
         <input
           value={text}

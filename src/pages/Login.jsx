@@ -36,11 +36,9 @@ export default function Login() {
             payload?.avatar ||
             null;
           
-          // Om avatar finns från servern, spara den
           if (avatar) {
             localStorage.setItem("avatar", avatar);
           } else {
-            // Om ingen avatar finns, generera en konsekvent baserat på username
             let hash = 0;
             for (let i = 0; i < username.length; i++) {
               hash = username.charCodeAt(i) + ((hash << 5) - hash);
@@ -50,7 +48,6 @@ export default function Login() {
             localStorage.setItem("avatar", generatedAvatar);
           }
         } else {
-          // Om ingen userId, generera baserat på username
           let hash = 0;
           for (let i = 0; i < username.length; i++) {
             hash = username.charCodeAt(i) + ((hash << 5) - hash);
@@ -60,7 +57,6 @@ export default function Login() {
           localStorage.setItem("avatar", generatedAvatar);
         }
       } catch {
-        // Fallback: generera baserat på username
         let hash = 0;
         for (let i = 0; i < username.length; i++) {
           hash = username.charCodeAt(i) + ((hash << 5) - hash);
