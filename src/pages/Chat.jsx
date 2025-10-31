@@ -65,9 +65,22 @@ export default function Chat() {
       ALLOWED_ATTR: ['href', 'target'], // Endast säkra attribut
     });
 
-    // Om meddelandet blir tomt efter sanitering, visa varning eller blockera
+    // Om meddelandet blir tomt efter sanitering, visa felmeddelande i chatten
     if (!clean.trim()) {
-      alert("Meddelandet innehöll farliga HTML-taggar och togs bort.");
+      const errorMsg = {
+        id: `error-${Date.now()}`,
+        text: "Meddelandet innehöll farliga HTML-taggar och var inte tillåtet.",
+        createdAt: new Date().toISOString(),
+        userId: "system",
+        isError: true,
+      };
+      setMessages((prev) => [...prev, errorMsg]);
+      setText("");
+      setTimeout(() => {
+        if (chatListRef.current) {
+          chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
+        }
+      }, 50);
       return;
     }
 
@@ -104,6 +117,21 @@ export default function Chat() {
       <div className="chat-list" ref={chatListRef}>
         {messages.map((m) => {
           const mine = String(m.userId) === String(userId);
+          const isSystem = m.userId === "system";
+          const isError = m.isError;
+          
+          // Systemmeddelande (felmeddelanden)
+          if (isSystem) {
+            return (
+              <div key={m.id} className="msg msg-system">
+                <div className={`bubble bubble-system ${isError ? "bubble-error" : ""}`}>
+                  {m.text}
+                </div>
+              </div>
+            );
+          }
+          
+          // Vanliga meddelanden
           return (
             <div key={m.id} className={`msg ${mine ? "mine" : "other"}`}>
               <img

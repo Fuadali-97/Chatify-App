@@ -283,6 +283,30 @@ font-size: 1.1rem;
 color: var(--danger);
 }
 
+/* Systemmeddelanden */
+.msg-system {
+justify-content: center;
+align-items: center;
+max-width: 100%;
+margin: 12px 0;
+}
+
+.bubble-system {
+max-width: 80%;
+text-align: center;
+background: var(--bg-light);
+color: var(--muted);
+font-size: 0.9rem;
+padding: 8px 16px;
+margin: 0 auto;
+}
+
+.bubble-error {
+background: rgba(239, 68, 68, 0.15);
+color: var(--danger);
+border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
 .chat-input {
 display: flex;
 gap: 12px;
