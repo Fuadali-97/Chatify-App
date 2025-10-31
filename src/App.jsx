@@ -7,7 +7,7 @@ import AuthGuard from "./components/AuthGuard.jsx";
 
 export default function App() {
   const isAuthed =
-    localStorage.getItem("csrfToken") && sessionStorage.getItem("jwtToken");
+    sessionStorage.getItem("csrfToken") && sessionStorage.getItem("jwtToken");
 
   return (
     <div className={isAuthed ? "app-shell" : undefined}>
@@ -45,7 +45,7 @@ export default function App() {
 }
 
 function LoginGuard({ children }) {
-  const token = sessionStorage.getItem("token");
+  const token = sessionStorage.getItem("jwtToken");
 
   if (token) {
     return <Navigate to="/chat" replace />;

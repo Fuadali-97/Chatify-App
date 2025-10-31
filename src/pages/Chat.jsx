@@ -5,11 +5,11 @@ import { getUserMessages, postMessages, deleteMessages } from "../services/api";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const userId = localStorage.getItem("userId");
-  const username = localStorage.getItem("username") || "Guest";
+  const userId = sessionStorage.getItem("userId");
+  const username = sessionStorage.getItem("username") || "Guest";
   const [avatar] = useState(() => {
  
-    let stored = localStorage.getItem("avatar");
+    let stored = sessionStorage.getItem("avatar");
     if (stored) return stored;
     
     let hash = 0;
@@ -18,7 +18,7 @@ export default function Chat() {
     }
     const avatarId = Math.abs(hash % 70) + 1;
     const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
-    localStorage.setItem("avatar", generatedAvatar);
+    sessionStorage.setItem("avatar", generatedAvatar);
     return generatedAvatar;
   });
   const [botAvatar] = useState(() => {

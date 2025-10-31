@@ -27,7 +27,7 @@ export async function generateCsrf() {
   if (res.ok) {
     const data = await handleSuccess(res, "CSRF token fetched successfully");
     if (data?.csrfToken) {
-      localStorage.setItem("csrfToken", data.csrfToken);
+      sessionStorage.setItem("csrfToken", data.csrfToken);
       return data.csrfToken;
     } else {
       console.log("No CSRF token received in response.");
@@ -61,10 +61,9 @@ export async function registerUser(
       res,
       "Registration successful, redirecting to login..."
     );
-    // Spara avatar från serverns svar, eller använd den som skickades
     const savedAvatar = data?.registerUser?.avatar || avatar;
     if (savedAvatar) {
-      localStorage.setItem("avatar", savedAvatar);
+      sessionStorage.setItem("avatar", savedAvatar);
     }
     return data?.registerUser;
   }
@@ -75,7 +74,7 @@ export async function registerUser(
 }
 
 export async function loginUser(username, password) {
-  let csrfToken = localStorage.getItem("csrfToken");
+  let csrfToken = sessionStorage.getItem("csrfToken");
   if (!csrfToken) {
     csrfToken = await generateCsrf();
   }
@@ -119,14 +118,14 @@ export async function getUserById(userId) {
 
 export function logoutUser() {
   try {
-    localStorage.removeItem("csrfToken");
+    sessionStorage.removeItem("csrfToken");
     sessionStorage.removeItem("jwtToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("avatar");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("avatar");
     localStorage.removeItem("botAvatar");
     console.log(
-      "Logout successful. csrfToken removed from localStorage, jwtToken removed from sessionStorage, userId removed from localStorage, username removed from localStorage, avatar removed from localStorage, botAvatar removed from localStorage."
+      "Logout successful. csrfToken removed from sessionStorage, jwtToken removed from sessionStorage, userId removed from sessionStorage, username removed from sessionStorage, avatar removed from sessionStorage, botAvatar removed from localStorage."
     );
     return { success: true, message: "Logout successful", code: 0 };
   } catch (err) {

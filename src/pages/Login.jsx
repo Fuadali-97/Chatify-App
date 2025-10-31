@@ -21,10 +21,10 @@ export default function Login() {
       const username = payload?.username || f.username;
 
       if (userId) {
-        localStorage.setItem("userId", String(userId));
+        sessionStorage.setItem("userId", String(userId));
       }
       if (username) {
-        localStorage.setItem("username", username);
+        sessionStorage.setItem("username", username);
       }
 
       try {
@@ -37,7 +37,7 @@ export default function Login() {
             null;
           
           if (avatar) {
-            localStorage.setItem("avatar", avatar);
+            sessionStorage.setItem("avatar", avatar);
           } else {
             let hash = 0;
             for (let i = 0; i < username.length; i++) {
@@ -45,7 +45,7 @@ export default function Login() {
             }
             const avatarId = Math.abs(hash % 70) + 1;
             const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
-            localStorage.setItem("avatar", generatedAvatar);
+            sessionStorage.setItem("avatar", generatedAvatar);
           }
         } else {
           let hash = 0;
@@ -54,7 +54,7 @@ export default function Login() {
           }
           const avatarId = Math.abs(hash % 70) + 1;
           const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
-          localStorage.setItem("avatar", generatedAvatar);
+          sessionStorage.setItem("avatar", generatedAvatar);
         }
       } catch {
         let hash = 0;
@@ -63,7 +63,7 @@ export default function Login() {
         }
         const avatarId = Math.abs(hash % 70) + 1;
         const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
-        localStorage.setItem("avatar", generatedAvatar);
+        sessionStorage.setItem("avatar", generatedAvatar);
       }
 
       location.assign("/chat");
