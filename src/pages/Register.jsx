@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { register } from '../services/api'
+import { registerUser } from '../services/api'
 
 export default function Register() {
   const [f, setF] = useState({ username: '', email: '', password: '' })
@@ -10,11 +10,11 @@ export default function Register() {
     e.preventDefault()
     
     try {
-      await register(f)
+      await registerUser(f.username, f.password, f.email)
       setMsg('Registrering lyckades! Du skickas till login...')
       setTimeout(() => location.assign('/login'), 800)
     } catch (err) {
-      const m = err?.response?.data?.message || err?.message || 'Registrering misslyckades'
+      const m = err?.message || 'Registrering misslyckades'
       setMsg(m)
     }
   }

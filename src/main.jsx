@@ -3,9 +3,6 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './App.css'
-import { getCSRF } from './services/api'
-
-getCSRF().catch(() => {})
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

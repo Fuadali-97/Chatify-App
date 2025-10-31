@@ -1,50 +1,71 @@
-import { useEffect, useState, useRef } from 'react'
-import DOMPurify from 'dompurify'
-import { getMessages, createMessage, deleteMessage } from '../services/api'
+import { useEffect, useState, useRef } from "react";
+import DOMPurify from "dompurify";
+import { getUserMessages, postMessages, deleteMessages } from "../services/api";
 
 export default function Chat() {
-  const [messages, setMessages] = useState([])
-  const [text, setText] = useState('')
-  const userId = sessionStorage.getItem('userId')
-  const username = sessionStorage.getItem('username') || 'Guest'
-  const avatar = sessionStorage.getItem('avatar') || 'https://i.pravatar.cc/200'
-  const chatListRef = useRef(null)
+  const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
+  const userId = sessionStorage.getItem("userId");
+  const username = sessionStorage.getItem("username") || "Guest";
+  const avatar =
+    sessionStorage.getItem("avatar") || "https://i.pravatar.cc/200";
+  const [botAvatar] = useState(() => {
+    let stored = sessionStorage.getItem("botAvatar");
+    if (stored) return stored;
+    const randomId = Math.floor(Math.random() * 70) + 1;
+    const url = `https://i.pravatar.cc/200?img=${randomId}`;
+    sessionStorage.setItem("botAvatar", url);
+    return url;
+  });
+  const chatListRef = useRef(null);
 
-  async function load() { 
+  async function load() {
     try {
-      const { data } = await getMessages()
-      setMessages(data || [])
+      const msgs = await getUserMessages();
+      setMessages(msgs || []);
     } catch (err) {
-      console.error('Kunde inte hämta meddelanden', err)
+      console.error("Kunde inte hämta meddelanden", err);
     }
-    
+
     setTimeout(() => {
       if (chatListRef.current) {
-        chatListRef.current.scrollTop = chatListRef.current.scrollHeight
+        chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
       }
-    }, 200)
+    }, 200);
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load();
+  }, []);
 
   async function send(e) {
-    e.preventDefault()
-    if (!text.trim()) return
-    
-    const clean = text
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;')
-    
-    await createMessage({ text: clean })
-    setText('')
-    await load()
+    e.preventDefault();
+    if (!text.trim()) return;
+
+    const clean = DOMPurify.sanitize(text);
+
+    await postMessages(clean);
+    setText("");
+    await load();
+    setTimeout(() => {
+      const botMsg = {
+        id: `bot-${Date.now()}`,
+        text: "Auto-response: Tack för ditt meddelande!",
+        createdAt: new Date().toISOString(),
+        userId: "support-bot",
+      };
+      setMessages((prev) => [...prev, botMsg]);
+      setTimeout(() => {
+        if (chatListRef.current) {
+          chatListRef.current.scrollTop = chatListRef.current.scrollHeight;
+        }
+      }, 50);
+    }, 900);
   }
 
-  async function remove(id) { 
-    await deleteMessage(id)
-    await load() 
+  async function remove(id) {
+    await deleteMessages(id);
+    await load();
   }
 
   return (
@@ -54,30 +75,37 @@ export default function Chat() {
         <span className="chat-username">{username}</span>
       </header>
       <div className="chat-list" ref={chatListRef}>
-        {messages.map(m => {
-          const mine = String(m.userId) === String(userId)
+        {messages.map((m) => {
+          const mine = String(m.userId) === String(userId);
           return (
-            <div key={m.id} className={`msg ${mine ? 'mine' : 'other'}`}>
-              <img 
-                src={mine ? (avatar || 'https://i.pravatar.cc/200') : 'https://i.pravatar.cc/200?u=bot'} 
-                alt="avatar" 
-                className="msg-avatar" 
+            <div key={m.id} className={`msg ${mine ? "mine" : "other"}`}>
+              <img
+                src={mine ? avatar || "https://i.pravatar.cc/200" : botAvatar}
+                alt="avatar"
+                className="msg-avatar"
               />
-              <div className="bubble" dangerouslySetInnerHTML={{ __html: m.text }} />
-              {mine && <button className="delete" onClick={() => remove(m.id)}>🗑</button>}
+              <div
+                className="bubble"
+                dangerouslySetInnerHTML={{ __html: m.text }}
+              />
+              {mine && (
+                <button className="delete" onClick={() => remove(m.id)}>
+                  🗑
+                </button>
+              )}
             </div>
-          )
+          );
         })}
       </div>
-      
+
       <form className="chat-input" onSubmit={send}>
-        <input 
-          value={text} 
-          onChange={e => setText(e.target.value)} 
-          placeholder="Skriv ett meddelande..." 
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Skriv ett meddelande..."
         />
         <button type="submit">Skicka</button>
       </form>
     </div>
-  )
+  );
 }
