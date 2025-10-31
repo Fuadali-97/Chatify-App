@@ -10,7 +10,16 @@ export default function Register() {
     e.preventDefault()
     
     try {
-      await registerUser(f.username, f.password, f.email)
+      // Generera en konsekvent avatar baserat på username
+      // Använd en hash av username för att få samma avatar varje gång
+      let hash = 0;
+      for (let i = 0; i < f.username.length; i++) {
+        hash = f.username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const avatarId = Math.abs(hash % 70) + 1;
+      const avatar = `https://i.pravatar.cc/200?img=${avatarId}`;
+      
+      await registerUser(f.username, f.password, f.email, avatar)
       setMsg('Registrering lyckades! Du skickas till login...')
       setTimeout(() => location.assign('/login'), 800)
     } catch (err) {

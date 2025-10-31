@@ -21,10 +21,10 @@ export default function Login() {
       const username = payload?.username || f.username;
 
       if (userId) {
-        sessionStorage.setItem("userId", String(userId));
+        localStorage.setItem("userId", String(userId));
       }
       if (username) {
-        sessionStorage.setItem("username", username);
+        localStorage.setItem("username", username);
       }
 
       try {
@@ -34,19 +34,40 @@ export default function Login() {
             userData?.avatar ||
             userData?.user?.avatar ||
             payload?.avatar ||
-            "https://i.pravatar.cc/200";
-          sessionStorage.setItem("avatar", avatar);
+            null;
+          
+          // Om avatar finns från servern, spara den
+          if (avatar) {
+            localStorage.setItem("avatar", avatar);
+          } else {
+            // Om ingen avatar finns, generera en konsekvent baserat på username
+            let hash = 0;
+            for (let i = 0; i < username.length; i++) {
+              hash = username.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const avatarId = Math.abs(hash % 70) + 1;
+            const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
+            localStorage.setItem("avatar", generatedAvatar);
+          }
         } else {
-          sessionStorage.setItem(
-            "avatar",
-            payload?.avatar || "https://i.pravatar.cc/200"
-          );
+          // Om ingen userId, generera baserat på username
+          let hash = 0;
+          for (let i = 0; i < username.length; i++) {
+            hash = username.charCodeAt(i) + ((hash << 5) - hash);
+          }
+          const avatarId = Math.abs(hash % 70) + 1;
+          const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
+          localStorage.setItem("avatar", generatedAvatar);
         }
       } catch {
-        sessionStorage.setItem(
-          "avatar",
-          payload?.avatar || "https://i.pravatar.cc/200"
-        );
+        // Fallback: generera baserat på username
+        let hash = 0;
+        for (let i = 0; i < username.length; i++) {
+          hash = username.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const avatarId = Math.abs(hash % 70) + 1;
+        const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
+        localStorage.setItem("avatar", generatedAvatar);
       }
 
       location.assign("/chat");

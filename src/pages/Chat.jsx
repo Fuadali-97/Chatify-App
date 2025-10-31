@@ -5,16 +5,29 @@ import { getUserMessages, postMessages, deleteMessages } from "../services/api";
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const userId = sessionStorage.getItem("userId");
-  const username = sessionStorage.getItem("username") || "Guest";
-  const avatar =
-    sessionStorage.getItem("avatar") || "https://i.pravatar.cc/200";
+  const userId = localStorage.getItem("userId");
+  const username = localStorage.getItem("username") || "Guest";
+  const [avatar] = useState(() => {
+    // Hämta från localStorage eller generera en konsekvent baserat på username
+    let stored = localStorage.getItem("avatar");
+    if (stored) return stored;
+    
+    // Generera en konsekvent avatar baserat på username om ingen finns
+    let hash = 0;
+    for (let i = 0; i < username.length; i++) {
+      hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const avatarId = Math.abs(hash % 70) + 1;
+    const generatedAvatar = `https://i.pravatar.cc/200?img=${avatarId}`;
+    localStorage.setItem("avatar", generatedAvatar);
+    return generatedAvatar;
+  });
   const [botAvatar] = useState(() => {
-    let stored = sessionStorage.getItem("botAvatar");
+    let stored = localStorage.getItem("botAvatar");
     if (stored) return stored;
     const randomId = Math.floor(Math.random() * 70) + 1;
     const url = `https://i.pravatar.cc/200?img=${randomId}`;
-    sessionStorage.setItem("botAvatar", url);
+    localStorage.setItem("botAvatar", url);
     return url;
   });
   const chatListRef = useRef(null);
@@ -42,7 +55,21 @@ export default function Chat() {
     e.preventDefault();
     if (!text.trim()) return;
 
-    const clean = DOMPurify.sanitize(text);
+    // DOMPurify tar automatiskt bort script-taggar och deras innehåll helt
+    // Detta säkerställer att farliga script-taggar inte kan köras
+    const clean = DOMPurify.sanitize(text, {
+      KEEP_CONTENT: false, // Ta bort innehållet i script-taggar helt
+      FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
+      FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'],
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+      ALLOWED_ATTR: ['href', 'target'], // Endast säkra attribut
+    });
+
+    // Om meddelandet blir tomt efter sanitering, visa varning eller blockera
+    if (!clean.trim()) {
+      alert("Meddelandet innehöll farliga HTML-taggar och togs bort.");
+      return;
+    }
 
     await postMessages(clean);
     setText("");
@@ -86,7 +113,16 @@ export default function Chat() {
               />
               <div
                 className="bubble"
-                dangerouslySetInnerHTML={{ __html: m.text }}
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(m.text, {
+                    KEEP_CONTENT: false, // Ta bort innehållet i script-taggar helt
+                    // DOMPurify tar automatiskt bort script-taggar och deras innehåll
+                    FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
+                    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit'],
+                    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+                    ALLOWED_ATTR: ['href', 'target'], // Endast säkra attribut
+                  })
+                }}
               />
               {mine && (
                 <button className="delete" onClick={() => remove(m.id)}>

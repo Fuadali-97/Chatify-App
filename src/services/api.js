@@ -61,8 +61,10 @@ export async function registerUser(
       res,
       "Registration successful, redirecting to login..."
     );
-    if (data?.registerUser?.avatar) {
-      sessionStorage.setItem("avatar", data.registerUser.avatar);
+    // Spara avatar från serverns svar, eller använd den som skickades
+    const savedAvatar = data?.registerUser?.avatar || avatar;
+    if (savedAvatar) {
+      localStorage.setItem("avatar", savedAvatar);
     }
     return data?.registerUser;
   }
@@ -119,11 +121,12 @@ export function logoutUser() {
   try {
     localStorage.removeItem("csrfToken");
     sessionStorage.removeItem("jwtToken");
-    sessionStorage.removeItem("userId");
-    sessionStorage.removeItem("username");
-    sessionStorage.removeItem("avatar");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("avatar");
+    localStorage.removeItem("botAvatar");
     console.log(
-      "Logout successful. csrfToken removed from localStorage, jwtToken removed from sessionStorage, userId removed from sessionStorage, username removed from sessionStorage, avatar removed from sessionStorage."
+      "Logout successful. csrfToken removed from localStorage, jwtToken removed from sessionStorage, userId removed from localStorage, username removed from localStorage, avatar removed from localStorage, botAvatar removed from localStorage."
     );
     return { success: true, message: "Logout successful", code: 0 };
   } catch (err) {
