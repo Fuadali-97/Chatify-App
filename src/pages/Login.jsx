@@ -11,7 +11,6 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      // Clean up any old localStorage data (migration from localStorage to sessionStorage)
       localStorage.removeItem("userId");
       localStorage.removeItem("username");
       localStorage.removeItem("avatar");

@@ -7,15 +7,12 @@ import SideNav from "./components/SideNav.jsx";
 import AuthGuard from "./components/AuthGuard.jsx";
 
 export default function App() {
-  // Clean up old localStorage data on app start (keep only botAvatar)
   useEffect(() => {
-    // Only remove if we're using sessionStorage now (migration cleanup)
     if (sessionStorage.getItem("csrfToken") || sessionStorage.getItem("jwtToken")) {
       localStorage.removeItem("csrfToken");
       localStorage.removeItem("userId");
       localStorage.removeItem("username");
       localStorage.removeItem("avatar");
-      // Keep botAvatar in localStorage - that's correct
     }
   }, []);
 
